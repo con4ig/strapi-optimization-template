@@ -1,0 +1,96 @@
+services:
+  # --- BACKEND API (STRAPI) ---
+  strapi:
+    container_name: strapi
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./Backend/.env
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${DATABASE_NAME:-strapi}
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-strapi}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-strapi}
+      NODE_ENV: production
+      # Public URL for generating links (e.g. emails, uploads)
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:1337}
+    # Port 1337 is exposed internally; Nginx Proxy Manager handles external routing
+    expose:
+      - "1337"
+    volumes:
+      - strapi_uploads:/opt/app/public/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 1337 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # --- FRONTEND ---
+  client:
+    container_name: client
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:1337}
+    restart: unless-stopped
+    # Port 80 is exposed for Nginx Proxy Manager to route traffic to the frontend
+    expose:
+      - "80"
+    depends_on:
+      - strapi
+    networks:
+      - app-network
+
+  # --- BAZA DANYCH ---
+  db:
+    container_name: strapi_db
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file: ./Backend/.env
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME:-strapi}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-strapi}
+      POSTGRES_DB: ${DATABASE_NAME:-strapi}
+    # Database ports are not exposed to the host for security reasons
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-strapi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - strapi_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # --- NGINX PROXY MANAGER & SSL ---
+  nginx-proxy:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - '80:80'   # Standard HTTP traffic
+      - '81:81'   # Nginx Proxy Manager Admin Panel
+      - '443:443' # Secure HTTPS traffic
+    volumes:
+      - ./npm-data:/data
+      - ./npm-letsencrypt:/etc/letsencrypt
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  strapi_data:
+  strapi_uploads:

@@ -1,0 +1,46 @@
+services:
+  strapi:
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      # Map the entire application folder - this is the most secure solution
+      - ./Backend:/opt/app
+      # The following lines are "Anonymous Volumes" - protecting against permission and file structure issues
+      - /opt/app/node_modules
+      - /opt/app/.cache
+      - /opt/app/build
+      - /opt/app/dist
+      - /opt/app/.tmp
+    # Ensure command is 'develop' in dev mode to enable Content-Type Builder
+    command: npm run develop
+    ports:
+      - "1337:1337"
+    networks:
+      - app-network
+
+  client:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      STRAPI_INTERNAL_API_URL: "http://strapi:1337"
+      NEXT_PUBLIC_STRAPI_API_URL: "http://localhost:1337"
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    networks:
+      - app-network
+
+  db:
+    # Keep Postgres in the network so Strapi can connect
+    networks:
+      - app-network
