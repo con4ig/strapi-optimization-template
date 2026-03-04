@@ -11,9 +11,9 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     if (!apiKey) {
       // Mocked response for testing without an API key
       return {
-        metaTitle: "The Blueprint | AI-Optimized Draft",
+        metaTitle: "SEO Core | AI-Optimized Draft",
         metaDescription:
-          "This is a mocked SEO description. Add GEMINI_API_KEY to your .env file to enable real Google Gemini 1.5 Flash generation.",
+          "This is a mocked SEO description. Add GEMINI_API_KEY to your .env file to enable real Google Gemini 2.0 Flash generation.",
       };
     }
 
@@ -87,7 +87,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       "AI SEO: All Gemini models failed or reached quota limits.",
     );
     return {
-      metaTitle: "The Blueprint | SEO Draft (Manual Review)",
+      metaTitle: "SEO Core | SEO Draft (Manual Review)",
       metaDescription: `AI Generation was unavailable (Rate Limit reached). Please review this content manually. [Error: ${lastError?.message}]`,
     };
   },
