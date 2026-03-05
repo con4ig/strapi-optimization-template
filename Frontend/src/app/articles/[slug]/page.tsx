@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Navbar } from "@/components/blocks/Navbar";
+import { Breadcrumbs } from "@/components/blocks/Breadcrumbs";
 import { BlocksRenderer } from "@strapi/blocks-react-renderer";
 import { fetchAPI } from "@/lib/api";
 import { StrapiResponse, StrapiArticle } from "@/types/strapi";
@@ -74,6 +75,13 @@ export default async function ArticlePage({ params }: Props) {
         />
       )}
       <main className="max-w-4xl mx-auto px-6 py-20">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Articles", href: "/articles" },
+            { label: article.title },
+          ]}
+        />
         <header className="mb-12">
           <p className="font-mono text-xs text-muted mb-4 uppercase tracking-widest">
             <time

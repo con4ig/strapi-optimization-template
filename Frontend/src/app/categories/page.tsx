@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Navbar } from "@/components/blocks/Navbar";
+import { Breadcrumbs } from "@/components/blocks/Breadcrumbs";
 import { fetchAPI } from "@/lib/api";
 import { StrapiResponse, StrapiCategory } from "@/types/strapi";
 import Link from "next/link";
@@ -27,6 +28,9 @@ export default async function CategoriesPage() {
       <Navbar />
       <main>
         <header className="max-w-6xl mx-auto px-6 pt-16 pb-12 border-b border-border">
+          <Breadcrumbs
+            items={[{ label: "Home", href: "/" }, { label: "Categories" }]}
+          />
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-4">
             /categories
           </p>

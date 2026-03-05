@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/blocks/Navbar";
+import { Breadcrumbs } from "@/components/blocks/Breadcrumbs";
 import { ArticleCard } from "@/components/blocks/ArticleCard";
 import { fetchAPI } from "@/lib/api";
 import { StrapiCollectionResponse, StrapiArticle } from "@/types/strapi";
@@ -19,6 +20,9 @@ export default async function ArticlesPage() {
       <Navbar />
       <main>
         <header className="max-w-6xl mx-auto px-6 pt-16 pb-12 border-b border-border">
+          <Breadcrumbs
+            items={[{ label: "Home", href: "/" }, { label: "Articles" }]}
+          />
           <p className="font-mono text-xs text-muted uppercase tracking-widest mb-4">
             /articles
           </p>
